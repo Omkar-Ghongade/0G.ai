@@ -1,8 +1,10 @@
-# 0G Social — Frontend
+# 0G Social
 
-Social feed on 0G: posts (text + optional image), feed, likes. This is the **Phase 1 frontend** with mock data; Phase 2 will wire to the smart contract and 0G storage.
+Social feed on 0G: posts (text + optional image) stored on 0G via a backend (zgDrive-style).
 
 ## Run
+
+**Frontend**
 
 ```bash
 npm install
@@ -11,13 +13,30 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
+**Backend (required for creating posts)**
+
+```bash
+cd backend
+cp .env.example .env
+# Set PRIVATE_KEY in .env (wallet with 0G testnet balance)
+npm install
+npm run dev
+```
+
+See [backend/README.md](backend/README.md) for details.
+
+**Smart contract (optional, from plan.md)**
+
+- Deploy [contracts/0GSocial.sol](contracts/0GSocial.sol) (ZeroGSocial) to 0G Galileo testnet (chainId 16602). See [contracts/README.md](contracts/README.md).
+- In the app root create `.env` and set `VITE_CONTRACT_ADDRESS=0xYourDeployedAddress`, then restart the frontend.
+- When set: create post → backend uploads to 0G → frontend calls `createPost(contentId, caption)`; likes call `like`/`unlike` on-chain.
+
 ## Features (MVP)
 
-- **Feed** — Chronological posts (mock data), newest first
-- **Create post** — "New post" opens modal: body (required), optional image; posts prepend to feed (local state only)
-- **Like / unlike** — Toggle per post; count updates locally
-- **Single post** — `/post/:id` shows full post; "View" link from feed
-- **Connect wallet** — Button opens "Coming soon" modal (Phase 2)
+- **Feed** — Chronological posts (mock data + new posts from chain when contract is set)
+- **Create post** — Backend uploads to 0G; if contract address is set, frontend calls `createPost(contentId, caption)` on-chain
+- **Like / unlike** — On-chain when contract is set; otherwise local state
+- **Single post** — `/post/:id`; **Connect wallet** — MetaMask
 
 ## Stack
 
@@ -29,6 +48,6 @@ Open [http://localhost:5173](http://localhost:5173).
 
 Neobrutalism: thick black borders, hard offset shadows, flat saturated colors (cream bg, yellow primary, orange accent, pink like). Space Grotesk font.
 
-## Phase 2
+## Backend API
 
-Wire to 0G contract (posts + likes) and 0G storage (content by CID); replace mock state with chain + storage.
+- **GET /api/content/:contentId** — Resolve 0G content by root hash (returns JSON: `body`, `imageRootHash`). Use when loading feed from chain.

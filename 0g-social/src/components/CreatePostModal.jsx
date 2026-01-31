@@ -1,9 +1,10 @@
 import { useState } from "react";
 
-export default function CreatePostModal({ onClose, onSubmit, isSubmitting }) {
+export default function CreatePostModal({ onClose, onSubmit, isSubmitting, error: externalError }) {
   const [body, setBody] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [error, setError] = useState("");
+  const displayError = externalError ?? error;
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -17,6 +18,7 @@ export default function CreatePostModal({ onClose, onSubmit, isSubmitting }) {
     onSubmit({
       body: trimmed,
       imageUrl,
+      imageFile: imageFile ?? null,
     });
     setBody("");
     setImageFile(null);
@@ -64,8 +66,8 @@ export default function CreatePostModal({ onClose, onSubmit, isSubmitting }) {
               className="w-full px-3 py-2 border-2 border-black bg-white font-medium file:mr-2 file:border-2 file:border-black file:bg-[var(--color-brutal-primary)] file:px-3 file:py-1 file:font-bold"
             />
           </div>
-          {error && (
-            <p className="text-sm font-bold text-[var(--color-brutal-like)]">{error}</p>
+          {displayError && (
+            <p className="text-sm font-bold text-[var(--color-brutal-like)]">{displayError}</p>
           )}
           <div className="flex gap-2 justify-end">
             <button
